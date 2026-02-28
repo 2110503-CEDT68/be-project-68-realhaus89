@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const dentistSchema = new Schema(
+const dentistSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -78,7 +78,7 @@ const dentistSchema = new Schema(
   {
     timestamps: true,
     toJSON: { virtuals: true },
-    toObject: { virtuals: true }j
+    toObject: { virtuals: true }
   }
 );
 
@@ -87,8 +87,8 @@ dentistSchema.index({ areaOfExpertise: 1 });
 dentistSchema.index({ email: 1 });
 
 // Virtual for available
-dentistSchema.virtual('availableSlotCount').get(funciton() {
-return this.availableSlots.filter(slot => !slot.isBooked).length;
+dentistSchema.virtual('availableSlotCount').get(function() {
+  return this.availableSlots.filter(slot => !slot.isBooked).length;
 });
 
 module.exports = mongoose.model('Dentist', dentistSchema);
