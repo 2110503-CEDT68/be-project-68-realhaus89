@@ -57,7 +57,7 @@ const bookingSchema = new mongoose.Schema(
   }
 );
 
-bookingSchema.index({ user: 1 });
+bookingSchema.index({ user: 1 }, { unique: true });
 
 bookingSchema.index({ dentist: 1, date: 1 });
 
