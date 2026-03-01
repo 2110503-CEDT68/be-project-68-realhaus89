@@ -61,12 +61,34 @@ app.use(helmet());
 //Prevent XSS attacks
 app.use(xss());
 
-//Rate limiting
-const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000, //10 mins
+//Rate limiting --------------------------------------------------------
+
+// const limiter = rateLimit({
+//   windowMs: 10 * 60 * 1000, //10 mins
+//   max: 100,
+// });
+// app.use(limiter);
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
   max: 100,
+  handler: (req, res) => {
+    res.status(429).json({ success: false, message: "Too Many Requests" });
+  },
 });
-app.use(limiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  handler: (req, res) => {
+    res.status(429).json({ success: false, message: "Too Many Auth Requests" });
+  },
+});
+
+app.use(generalLimiter);
+app.use("/api/v1/auth", authLimiter);
+
+//---------------------------------------------------------
 
 //Prevent http param pollution
 app.use(hpp());
