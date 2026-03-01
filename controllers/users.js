@@ -100,3 +100,22 @@ exports.deleteUser = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Get own profile
+// @route   GET /api/v1/users/me/profile
+// @access  Private
+exports.getMyProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
