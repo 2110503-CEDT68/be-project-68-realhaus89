@@ -220,3 +220,44 @@ exports.addSlots = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Delete available slot from dentist
+// @route   DELETE /api/v1/dentists/:id/slots/:slotId
+// @access  Private/Admin
+exports.deleteSlot = async (req, res, next) => {
+    try {
+        const dentist = await Dentist.findById(req.params.id);
+
+        if (!dentist) {
+            return res.status(404).json({
+                success: false,
+                message: `Dentist not found with id of ${req.params.id}`
+            });
+        }
+
+        // Find and remove the slot
+        const slotIndex = dentist.availableSlots.findIndex(
+            slot => slot._id.toString() === req.params.slotId
+        );
+
+        if (slotIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                message: `Slot not found with id of ${req.params.slotId}`
+            });
+        }
+
+        dentist.availableSlots.splice(slotIndex, 1);
+        await dentist.save();
+
+        res.status(200).json({
+            success: true,
+            data: {}
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
