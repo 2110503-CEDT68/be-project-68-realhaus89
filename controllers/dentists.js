@@ -1,4 +1,5 @@
 const Dentist = require('../models/Dentist');
+const Booking = require('../models/Booking');
 
 // @desc    Get all dentists
 // @route   GET /api/v1/dentists
@@ -147,6 +148,38 @@ exports.updateDentist = async (req, res, next) => {
         res.status(200).json({
             success: true,
             data: dentist
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
+
+// @desc    Delete dentist
+// @route   DELETE /api/v1/dentists/:id
+// @access  Private/Admin
+exports.deleteDentist = async (req, res, next) => {
+    try {
+        const dentist = await Dentist.findById(req.params.id);
+
+        if (!dentist) {
+            return res.status(404).json({
+                success: false,
+                message: `Dentist not found with id of ${req.params.id}`
+            });
+        }
+
+        // Delete all bookings associated with this dentist
+        await Booking.deleteMany({ dentist: req.params.id });
+
+        // Delete the dentist
+        await Dentist.deleteOne({ _id: req.params.id });
+
+        res.status(200).json({
+            success: true,
+            data: {}
         });
     } catch (err) {
         res.status(400).json({
