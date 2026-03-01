@@ -188,3 +188,35 @@ exports.deleteDentist = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Add available slots to dentist
+// @route   POST /api/v1/dentists/:id/slots
+// @access  Private/Admin
+exports.addSlots = async (req, res, next) => {
+    try {
+        const dentist = await Dentist.findById(req.params.id);
+
+        if (!dentist) {
+            return res.status(404).json({
+                success: false,
+                message: `Dentist not found with id of ${req.params.id}`
+            });
+        }
+
+        // Add new slots to existing availableSlots
+        const newSlots = req.body.slots || [req.body];
+        dentist.availableSlots.push(...newSlots);
+
+        await dentist.save();
+
+        res.status(200).json({
+            success: true,
+            data: dentist
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
