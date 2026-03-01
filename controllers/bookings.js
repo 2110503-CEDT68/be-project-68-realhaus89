@@ -47,3 +47,32 @@ exports.createBooking = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Get own booking
+// @route   GET /api/v1/bookings/me
+// @access  Private
+exports.getMyBooking = async (req, res, next) => {
+    try {
+        const booking = await Booking.findOne({ user: req.user.id }).populate({
+            path: 'dentist',
+            select: 'name yearsOfExperience areaOfExpertise'
+        });
+
+        if (!booking) {
+            return res.status(404).json({
+                success: false,
+                message: 'No booking found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: booking
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
