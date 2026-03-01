@@ -126,3 +126,32 @@ exports.createDentist = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Update dentist
+// @route   PUT /api/v1/dentists/:id
+// @access  Private/Admin
+exports.updateDentist = async (req, res, next) => {
+    try {
+        const dentist = await Dentist.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!dentist) {
+            return res.status(404).json({
+                success: false,
+                message: `Dentist not found with id of ${req.params.id}`
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: dentist
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
