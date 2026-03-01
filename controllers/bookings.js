@@ -102,3 +102,43 @@ exports.getBookings = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Get single booking
+// @route   GET /api/v1/bookings/:id
+// @access  Private
+exports.getBooking = async (req, res, next) => {
+    try {
+        const booking = await Booking.findById(req.params.id).populate({
+            path: 'dentist',
+            select: 'name yearsOfExperience areaOfExpertise'
+        }).populate({
+            path: 'user',
+            select: 'name email phone'
+        });
+
+        if (!booking) {
+            return res.status(404).json({
+                success: false,
+                message: `Booking not found with id of ${req.params.id}`
+            });
+        }
+
+        // Check if user owns this booking or is admin
+        if (booking.user._id.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Not authorized to access this booking'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: booking
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
