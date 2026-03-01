@@ -2,7 +2,7 @@ const User = require('../models/User');
 
 // @desc    Get all users
 // @route   GET /api/v1/users
-// @access  Private
+// @access  Private/Admin
 exports.getUsers = async (req, res, next) => {
     try {
         const users = await User.find();
@@ -22,7 +22,7 @@ exports.getUsers = async (req, res, next) => {
 
 // @desc    Get single user
 // @route   GET /api/v1/users/:id
-// @access  Private
+// @access  Private/Admin
 exports.getUser = async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id);
@@ -48,7 +48,7 @@ exports.getUser = async (req, res, next) => {
 
 // @desc    Update user
 // @route   PUT /api/v1/users/:id
-// @access  Private
+// @access  Private/Admin
 exports.updateUser = async (req, res, next) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, {
@@ -77,7 +77,7 @@ exports.updateUser = async (req, res, next) => {
 
 // @desc    Delete user
 // @route   DELETE /api/v1/users/:id
-// @access  Private
+// @access  Private/Admin
 exports.deleteUser = async (req, res, next) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
@@ -107,6 +107,28 @@ exports.deleteUser = async (req, res, next) => {
 exports.getMyProfile = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
+
+// @desc    Update own profile
+// @route   PUT /api/v1/users/me/profile
+// @access  Private
+exports.updateMyProfile = async (req, res, next) => {
+    try {
+        const user = await User.findByIdAndUpdate(req.user.id, req.body, {
+            new: true,
+            runValidators: true
+        });
 
         res.status(200).json({
             success: true,
