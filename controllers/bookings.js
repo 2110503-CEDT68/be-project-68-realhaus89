@@ -76,3 +76,29 @@ exports.getMyBooking = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Get all bookings
+// @route   GET /api/v1/bookings
+// @access  Private/Admin
+exports.getBookings = async (req, res, next) => {
+    try {
+        const bookings = await Booking.find().populate({
+            path: 'dentist',
+            select: 'name yearsOfExperience areaOfExpertise'
+        }).populate({
+            path: 'user',
+            select: 'name email phone'
+        });
+
+        res.status(200).json({
+            success: true,
+            count: bookings.length,
+            data: bookings
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
