@@ -81,3 +81,29 @@ exports.getDentists = async (req, res, next) => {
         });
     }
 };
+
+// @desc    Get single dentist
+// @route   GET /api/v1/dentists/:id
+// @access  Public
+exports.getDentist = async (req, res, next) => {
+    try {
+        const dentist = await Dentist.findById(req.params.id);
+
+        if (!dentist) {
+            return res.status(404).json({
+                success: false,
+                message: `Dentist not found with id of ${req.params.id}`
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: dentist
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
