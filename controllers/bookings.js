@@ -36,6 +36,25 @@ exports.createBooking = async (req, res, next) => {
         // Update user's booking reference
         await User.findByIdAndUpdate(req.user.id, { booking: booking._id });
 
+        // Update dentist's availableSlots to mark the slot as booked
+        const bookingDate = new Date(booking.date);
+        bookingDate.setHours(0, 0, 0, 0);
+        
+        await Dentist.findOneAndUpdate(
+            {
+                _id: req.body.dentist,
+                'availableSlots.date': {
+                    $gte: bookingDate,
+                    $lt: new Date(bookingDate.getTime() + 24 * 60 * 60 * 1000)
+                },
+                'availableSlots.startTime': booking.startTime,
+                'availableSlots.endTime': booking.endTime
+            },
+            {
+                $set: { 'availableSlots.$.isBooked': true }
+            }
+        );
+
         res.status(201).json({
             success: true,
             data: booking
@@ -207,6 +226,25 @@ exports.deleteBooking = async (req, res, next) => {
 
         // Remove booking reference from user
         await User.findByIdAndUpdate(booking.user, { booking: null });
+
+        // Update dentist's availableSlots to mark the slot as available again
+        const bookingDate = new Date(booking.date);
+        bookingDate.setHours(0, 0, 0, 0);
+        
+        await Dentist.findOneAndUpdate(
+            {
+                _id: booking.dentist,
+                'availableSlots.date': {
+                    $gte: bookingDate,
+                    $lt: new Date(bookingDate.getTime() + 24 * 60 * 60 * 1000)
+                },
+                'availableSlots.startTime': booking.startTime,
+                'availableSlots.endTime': booking.endTime
+            },
+            {
+                $set: { 'availableSlots.$.isBooked': false }
+            }
+        );
 
         // Delete booking
         await Booking.deleteOne({ _id: req.params.id });
