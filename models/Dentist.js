@@ -99,7 +99,7 @@ dentistSchema.index({ areaOfExpertise: 1 });
 
 // Virtual for available
 dentistSchema.virtual("availableSlotCount").get(function () {
-  return this.availableSlots.filter((slot) => !slot.isBooked).length;
+  return this.availableSlots ? this.availableSlots.filter((slot) => !slot.isBooked).length : 0;
 });
 
 module.exports = mongoose.model("Dentist", dentistSchema);
